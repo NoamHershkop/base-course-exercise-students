@@ -37,6 +37,7 @@ public class EjectionsImporter {
     private final RestTemplate restTemplate;
     private final CrudDataBase dataBase;
     private final ListOperations listOperations;
+    private static final Double SHIFT_NORTH = 1.7;
 
     public EjectionsImporter(RestTemplateBuilder restTemplateBuilder, CrudDataBase dataBase, ListOperations listOperations) {
         restTemplate = restTemplateBuilder.build();
@@ -56,7 +57,7 @@ public class EjectionsImporter {
             ejectionsFromServer = responseEntity.getBody();
             if (ejectionsFromServer != null) {
                 for(EjectedPilotInfo ejectedPilotInfo: ejectionsFromServer) {
-                    ejectedPilotInfo.coordinates.lat += 1.7;
+                    ejectedPilotInfo.coordinates.lat += SHIFT_NORTH;
                 }
             }
             List<EjectedPilotInfo> updatedEjections = ejectionsFromServer;
