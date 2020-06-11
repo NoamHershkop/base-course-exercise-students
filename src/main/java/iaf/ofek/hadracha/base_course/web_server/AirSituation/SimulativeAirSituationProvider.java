@@ -27,6 +27,9 @@ public class SimulativeAirSituationProvider implements AirSituationProvider {
     private static final double LON_MIN = 32.000;
     private static final double LON_MAX = 46.500;
     private static final double AZIMUTH_STEP = STEP_SIZE / (2000.0 / SIMULATION_INTERVAL_MILLIS);
+    private static final int PLANES_TO_ADD = 80;
+    private static final int ARRIVAL_DISTANCE = 500;
+
 
 
     // Scheduler to run advancement task repeatedly
@@ -46,7 +49,7 @@ public class SimulativeAirSituationProvider implements AirSituationProvider {
         this.randomGenerators = randomGenerators;
         this.geographicCalculations = geographicCalculations;
 
-        for (int i = 0; i < 80; i++) {
+        for (int i = 0; i < PLANES_TO_ADD; i++) {
             addNewRandomAirplane();
         }
 
@@ -126,7 +129,7 @@ public class SimulativeAirSituationProvider implements AirSituationProvider {
     }
 
     private boolean arrivedToDestination(Coordinates currLocation, Coordinates headingTo) {
-        return geographicCalculations.distanceBetween(currLocation, headingTo) < 500;
+        return geographicCalculations.distanceBetween(currLocation, headingTo) < ARRIVAL_DISTANCE;
     }
 
     /**
