@@ -28,6 +28,14 @@ public class EjectedPilotInfo implements Entity<EjectedPilotInfo> {
         this.coordinates = coordinates;
     }
 
+    public String getPilotName() {
+        return pilotName;
+    }
+
+    public void setPilotName(String pilotName) {
+        this.pilotName = pilotName;
+    }
+
     public String getRescuedBy() {
         return rescuedBy;
     }
