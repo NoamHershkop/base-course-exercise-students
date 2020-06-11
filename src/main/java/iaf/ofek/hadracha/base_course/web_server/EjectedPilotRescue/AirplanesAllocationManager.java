@@ -32,7 +32,7 @@ public class AirplanesAllocationManager {
         // The current algorithm - find the closest available airplane of each kind
 
         List<Airplane> airplanes = airSituationProvider.getAllAirplanes();
-        Coordinates ejectionCoordinates = ejectedPilotInfo.coordinates;
+        Coordinates ejectionCoordinates = ejectedPilotInfo.getCoordinates();
 
         Map<AirplaneKind, ClosestAirplane> closestAirplanes = new HashMap<>();
         closestAirplanes.put(AirplaneKind.Krav, new ClosestAirplane());
@@ -63,13 +63,13 @@ public class AirplanesAllocationManager {
         public void updateIfCloser(Airplane airplane, Coordinates closeTo) {
             double distance = geographicCalculations.distanceBetween(airplane.coordinates, closeTo);
 
-            if (thisIsTheFirstAirplane() || closestDistance > distance) {
+            if (isItTheFirstAirplane() || closestDistance > distance) {
                 closestDistance = distance;
                 closestAirplane = airplane;
             }
         }
 
-        private boolean thisIsTheFirstAirplane() {
+        private boolean isItTheFirstAirplane() {
             return closestAirplane == null;
         }
     }

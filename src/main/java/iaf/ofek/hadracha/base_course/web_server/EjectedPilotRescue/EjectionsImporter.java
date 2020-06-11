@@ -32,7 +32,6 @@ public class EjectionsImporter {
     public String NAMESPACE;
 
 
-
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private final RestTemplate restTemplate;
     private final CrudDataBase dataBase;
@@ -47,31 +46,43 @@ public class EjectionsImporter {
 
     }
 
-    private void updateEjections() {
+    private List<EjectedPilotInfo> getNewEjections() {
         try {
-            List<EjectedPilotInfo> ejectionsFromServer;
             ResponseEntity<List<EjectedPilotInfo>> responseEntity = restTemplate.exchange(
                     EJECTION_SERVER_URL + "/ejections?name=" + NAMESPACE, HttpMethod.GET,
                     null, new ParameterizedTypeReference<List<EjectedPilotInfo>>() {
                     });
-            ejectionsFromServer = responseEntity.getBody();
-            if (ejectionsFromServer != null) {
-                for(EjectedPilotInfo ejectedPilotInfo: ejectionsFromServer) {
-                    ejectedPilotInfo.coordinates.lat += SHIFT_NORTH;
-                }
-            }
-            List<EjectedPilotInfo> updatedEjections = ejectionsFromServer;
-            List<EjectedPilotInfo> previousEjections = dataBase.getAllOfType(EjectedPilotInfo.class);
-
-            List<EjectedPilotInfo> addedEjections = ejectionsToAdd(updatedEjections, previousEjections);
-            List<EjectedPilotInfo> removedEjections = ejectionsToRemove(updatedEjections, previousEjections);
-
-            addedEjections.forEach(dataBase::create);
-            removedEjections.stream().map(EjectedPilotInfo::getId).forEach(id -> dataBase.delete(id, EjectedPilotInfo.class));
+            return responseEntity.getBody();
         } catch (RestClientException e) {
             System.err.println("Could not get ejections: " + e.getMessage());
             e.printStackTrace();
+            return null;
         }
+    }
+
+    private void shiftNorth(List<EjectedPilotInfo> ejectionsFromServer){
+        for (EjectedPilotInfo ejectedPilotInfo : ejectionsFromServer) {
+            ejectedPilotInfo.getCoordinates().lat += SHIFT_NORTH;
+        }
+    }
+
+    private void updateEjectionInDB(List<EjectedPilotInfo> ejectionsFromServer){
+        List<EjectedPilotInfo> updatedEjections = ejectionsFromServer;
+        List<EjectedPilotInfo> previousEjections = dataBase.getAllOfType(EjectedPilotInfo.class);
+
+        List<EjectedPilotInfo> addedEjections = ejectionsToAdd(updatedEjections, previousEjections);
+        List<EjectedPilotInfo> removedEjections = ejectionsToRemove(updatedEjections, previousEjections);
+
+        addedEjections.forEach(dataBase::create);
+        removedEjections.stream().map(EjectedPilotInfo::getId).forEach(id -> dataBase.delete(id, EjectedPilotInfo.class));
+    }
+
+    private void updateEjections() {
+        List<EjectedPilotInfo> ejectionsFromServer = this.getNewEjections();
+        if (ejectionsFromServer != null) {
+            shiftNorth(ejectionsFromServer);
+        }
+        updateEjectionInDB(ejectionsFromServer);
     }
 
     private List<EjectedPilotInfo> ejectionsToRemove(List<EjectedPilotInfo> updatedEjections, List<EjectedPilotInfo> previousEjections) {

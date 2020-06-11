@@ -28,8 +28,8 @@ public class EjectedPilotRescueController {
             throw new IllegalArgumentException("Error: No ejection found");
         }
 
-        if (ejectedPilotInfo.rescuedBy==null) {
-            ejectedPilotInfo.rescuedBy = clientId;
+        if (ejectedPilotInfo.getRescuedBy()==null) {
+            ejectedPilotInfo.setRescuedBy(clientId);
             crudDataBase.update(ejectedPilotInfo);
             airplanesAllocationManager.allocateAirplanesForEjection(ejectedPilotInfo, clientId);
         }else
